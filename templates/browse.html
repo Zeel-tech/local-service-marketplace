@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="section-title">Browse Professionals</div>
+  <div class="section-sub">Filter by category and city to find who you need.</div>
+
+  <form method="GET" style="display:flex; gap:12px; margin-bottom:32px; flex-wrap:wrap;">
+    <select name="category" style="max-width:220px;">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="city" placeholder="City" value="{{ selected_city }}" style="max-width:200px;">
+    <button type="submit" class="btn btn-dark">Search</button>
+  </form>
+
+  {% if workers %}
+    <div class="ticket-grid">
+      {% for w in workers %}
+        <div class="ticket">
+          <div class="ticket-top">
+            <span class="ticket-category">{{ w.category }}</span>
+            <div class="ticket-price">₹{{ w.price_per_visit|int }}<span> /visit</span></div>
+          </div>
+          <div class="ticket-name">{{ w.user.name }}</div>
+          <div class="ticket-meta">{{ w.user.city or 'City not set' }} &middot; {{ w.experience_years }} yrs experience</div>
+          <div class="ticket-divider"></div>
+          <div class="ticket-desc">{{ w.description or 'No description provided.' }}</div>
+          <div class="ticket-rating">
+            {% if w.review_count > 0 %}
+              ★ {{ w.avg_rating }} ({{ w.review_count }} review{{ 's' if w.review_count != 1 else '' }})
+            {% else %}
+              No reviews yet
+            {% endif %}
+          </div>
+          {% if current_user.is_authenticated and current_user.role == 'customer' %}
+            <a href="{{ url_for('customer.book_worker', worker_id=w.id) }}" class="btn btn-amber btn-block">Book Now</a>
+          {% elif not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-block">Login to Book</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>No professionals found</h3>
+      <p>Try a different category or city.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

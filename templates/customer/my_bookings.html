@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="section-title">My Bookings</div>
+  <div class="section-sub">Track every service request you've made.</div>
+
+  {% if bookings %}
+    {% for b in bookings %}
+      <div class="booking-row">
+        <div class="booking-info">
+          <h4>{{ b.worker_profile.user.name }} &middot; {{ b.worker_profile.category }}</h4>
+          <p>{{ b.service_date.strftime('%d %b %Y') }} &middot; {{ b.address }}</p>
+        </div>
+        <div class="booking-actions">
+          <span class="status status-{{ b.status }}">{{ b.status }}</span>
+          {% if b.status == 'completed' and not b.review %}
+            <a href="{{ url_for('customer.leave_review', booking_id=b.id) }}" class="btn btn-amber btn-sm">Leave Review</a>
+          {% elif b.review %}
+            <span style="font-size:0.85rem; color:var(--amber-dark); font-weight:600;">★ Reviewed</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <h3>No bookings yet</h3>
+      <p><a href="{{ url_for('main.browse') }}" style="color:var(--amber-dark); font-weight:600;">Browse professionals</a> to make your first booking.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

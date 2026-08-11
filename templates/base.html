@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FixLocal - Find Trusted Local Professionals{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="{{ url_for('main.index') }}" class="brand">FixLocal<span class="dot">.</span></a>
+    <nav class="nav-links">
+      <a href="{{ url_for('main.browse') }}">Browse Services</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'customer' %}
+          <a href="{{ url_for('customer.my_bookings') }}">My Bookings</a>
+        {% else %}
+          <a href="{{ url_for('worker.dashboard') }}">My Dashboard</a>
+        {% endif %}
+        <span style="opacity:0.7">Hi, {{ current_user.name.split(' ')[0] }}</span>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-amber btn-sm">Sign Up</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container" style="padding-bottom:0;">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    FixLocal &mdash; Local Service Marketplace &middot; SGP Project 2026
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:520px;">
+  <div class="section-title" style="text-align:center;">Create your account</div>
+  <div class="section-sub" style="text-align:center;">Join FixLocal as a customer or a professional.</div>
+
+  <div class="form-card">
+    <form method="POST">
+      <div class="role-toggle">
+        <input type="radio" name="role" id="role-customer" value="customer" checked>
+        <label for="role-customer">I need a service</label>
+        <input type="radio" name="role" id="role-worker" value="worker">
+        <label for="role-worker">I offer a service</label>
+      </div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" name="phone">
+      </div>
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" name="city">
+      </div>
+
+      <button type="submit" class="btn btn-amber btn-block">Create Account</button>
+    </form>
+    <p style="text-align:center; margin-top:16px; font-size:0.9rem;">
+      Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--amber-dark); font-weight:600;">Log in</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.role-toggle input').forEach(el => {
+    el.addEventListener('change', () => {
+      document.querySelectorAll('.role-toggle label').forEach(l => l.classList.remove('active'));
+      el.nextElementSibling.classList.add('active');
+    });
+  });
+  document.getElementById('role-customer').nextElementSibling.classList.add('active');
+</script>
+{% endblock %}

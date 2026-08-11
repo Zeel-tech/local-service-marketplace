@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+    <div>
+      <div class="section-title">My Dashboard</div>
+      <div class="section-sub">{{ profile.category }} &middot; ₹{{ profile.price_per_visit|int }}/visit &middot; ★ {{ profile.avg_rating or '—' }} ({{ profile.review_count }} reviews)</div>
+    </div>
+    <a href="{{ url_for('worker.setup_profile') }}" class="btn btn-outline btn-sm" style="color:var(--ink); border-color:var(--ink);">Edit Profile</a>
+  </div>
+
+  {% if bookings %}
+    {% for b in bookings %}
+      <div class="booking-row">
+        <div class="booking-info">
+          <h4>{{ b.customer.name }} &middot; {{ b.service_date.strftime('%d %b %Y') }}</h4>
+          <p>{{ b.address }}</p>
+          {% if b.notes %}<p>Note: {{ b.notes }}</p>{% endif %}
+        </div>
+        <div class="booking-actions">
+          <span class="status status-{{ b.status }}">{{ b.status }}</span>
+          {% if b.status == 'pending' %}
+            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='accept') }}" class="btn btn-green btn-sm">Accept</a>
+            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='reject') }}" class="btn btn-red btn-sm">Reject</a>
+          {% elif b.status == 'accepted' %}
+            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='complete') }}" class="btn btn-dark btn-sm">Mark Completed</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <h3>No bookings yet</h3>
+      <p>Once customers book you, requests will show up here.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

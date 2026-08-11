@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Verified &middot; Local &middot; Ready to work</div>
+    <h1>Find a skilled professional for the job, not just a phone number.</h1>
+    <p>FixLocal connects you with verified plumbers, electricians, mechanics, cleaners and more in your city — with transparent pricing and a real booking trail.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('main.browse') }}" class="btn btn-amber">Browse Services</a>
+      {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-outline">Join as a Professional</a>
+      {% endif %}
+    </div>
+    <div class="chip-row">
+      {% for cat in categories %}
+        <a href="{{ url_for('main.browse', category=cat) }}" class="chip">{{ cat }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="container">
+  <div class="section-title">Why FixLocal</div>
+  <div class="section-sub">Built to fix the problems with finding local help the old way.</div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;">
+    <div class="ticket" style="align-items:flex-start;">
+      <span class="ticket-category">01</span>
+      <div class="ticket-name">Verified Profiles</div>
+      <div class="ticket-desc">Every worker lists real experience, category and pricing upfront — no guesswork.</div>
+    </div>
+    <div class="ticket" style="align-items:flex-start;">
+      <span class="ticket-category">02</span>
+      <div class="ticket-name">Transparent Booking</div>
+      <div class="ticket-desc">Request a service, track its status from pending to completed, all in one place.</div>
+    </div>
+    <div class="ticket" style="align-items:flex-start;">
+      <span class="ticket-category">03</span>
+      <div class="ticket-name">Real Reviews</div>
+      <div class="ticket-desc">Ratings come only from customers who completed a booking — no fake noise.</div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
