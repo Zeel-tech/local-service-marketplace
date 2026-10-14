@@ -1,0 +1,15 @@
+{% macro avatar(profile, size='md') %}
+  {% if profile.photo_filename %}
+    <img class="avatar avatar-{{ size }}" src="{{ url_for('static', filename='uploads/profiles/' ~ profile.photo_filename) }}" alt="{{ profile.user.name }}">
+  {% else %}
+    <span class="avatar avatar-{{ size }} avatar-initials">{{ profile.user.name[:1]|upper }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro verified_badge(profile) %}
+  {% if profile.is_verified %}<span class="verified-badge" title="Identity and skills verified by FixLocal">&#10003; Verified</span>{% endif %}
+{% endmacro %}
+
+{% macro payment_badge(b) %}
+  <span class="status pay-{{ b.payment_status }}">{{ b.payment_status }}{% if b.payment_status == 'paid' and b.payment_method %} &middot; {{ b.payment_method }}{% endif %}</span>
+{% endmacro %}

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% from "_macros.html" import avatar, verified_badge %}
 {% block content %}
 <div class="container">
   <div class="section-title">Browse Professionals</div>
   <div class="section-sub">Filter by category and city to find who you need.</div>
 
-  <form method="GET" style="display:flex; gap:12px; margin-bottom:32px; flex-wrap:wrap;">
+  <form method="GET" style="display:flex; gap:12px; margin-bottom:32px; flex-wrap:wrap; align-items:center;">
     <select name="category" style="max-width:220px;">
       <option value="">All Categories</option>
       {% for cat in categories %}
@@ -12,6 +13,9 @@
       {% endfor %}
     </select>
     <input type="text" name="city" placeholder="City" value="{{ selected_city }}" style="max-width:200px;">
+    <input type="number" name="min_price" placeholder="Min ₹" min="0" value="{{ min_price }}" style="max-width:110px;">
+    <input type="number" name="max_price" placeholder="Max ₹" min="0" value="{{ max_price }}" style="max-width:110px;">
+    <label class="check-inline"><input type="checkbox" name="verified" value="1" {% if verified_only %}checked{% endif %}> Verified only</label>
     <button type="submit" class="btn btn-dark">Search</button>
   </form>
 
@@ -23,7 +27,13 @@
             <span class="ticket-category">{{ w.category }}</span>
             <div class="ticket-price">₹{{ w.price_per_visit|int }}<span> /visit</span></div>
           </div>
-          <div class="ticket-name">{{ w.user.name }}</div>
+          <div class="ticket-person">
+            {{ avatar(w) }}
+            <div>
+              <div class="ticket-name">{{ w.user.name }}</div>
+              {{ verified_badge(w) }}
+            </div>
+          </div>
           <div class="ticket-meta">{{ w.user.city or 'City not set' }} &middot; {{ w.experience_years }} yrs experience</div>
           <div class="ticket-divider"></div>
           <div class="ticket-desc">{{ w.description or 'No description provided.' }}</div>

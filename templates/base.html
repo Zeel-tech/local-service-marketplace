@@ -15,9 +15,15 @@
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'customer' %}
           <a href="{{ url_for('customer.my_bookings') }}">My Bookings</a>
+        {% elif current_user.role == 'admin' %}
+          <a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>
         {% else %}
           <a href="{{ url_for('worker.dashboard') }}">My Dashboard</a>
         {% endif %}
+        {% set unread = current_user.unread_count %}
+        <a href="{{ url_for('notifications.index') }}" class="bell" title="Notifications">
+          &#128276;{% if unread %}<span class="badge-count">{{ unread }}</span>{% endif %}
+        </a>
         <span style="opacity:0.7">Hi, {{ current_user.name.split(' ')[0] }}</span>
         <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">Logout</a>
       {% else %}

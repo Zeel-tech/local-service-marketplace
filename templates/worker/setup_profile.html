@@ -1,11 +1,19 @@
 {% extends "base.html" %}
+{% from "_macros.html" import avatar, verified_badge %}
 {% block content %}
 <div class="container" style="max-width:520px;">
   <div class="section-title" style="text-align:center;">{{ 'Edit' if profile else 'Set up' }} your professional profile</div>
   <div class="section-sub" style="text-align:center;">This is what customers will see when they browse.</div>
 
   <div class="form-card">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Profile Photo (JPG, PNG or WEBP, max 3 MB)</label>
+        <div style="display:flex; align-items:center; gap:14px;">
+          {% if profile %}{{ avatar(profile, 'lg') }}{% endif %}
+          <input type="file" name="photo" accept="image/png,image/jpeg,image/webp">
+        </div>
+      </div>
       <div class="form-group">
         <label>Service Category</label>
         <select name="category" required>

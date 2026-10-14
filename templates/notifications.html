@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:720px;">
+  <div class="section-title">Notifications</div>
+  <div class="section-sub">Updates on your bookings and payments.</div>
+
+  {% if items %}
+    {% for n in items %}
+      <a href="{{ n.link or '#' }}" class="notif {% if n.id in unread_ids %}notif-new{% endif %}">
+        <div>{{ n.message }}</div>
+        <small>{{ n.created_at.strftime('%d %b %Y, %H:%M') }} UTC</small>
+      </a>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state"><h3>Nothing yet</h3><p>Booking updates will appear here.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

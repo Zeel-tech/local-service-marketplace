@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:520px;">
+  <div class="section-title" style="text-align:center;">Pay {{ booking.worker_profile.user.name }}</div>
+  <div class="section-sub" style="text-align:center;">{{ booking.worker_profile.category }} &middot; {{ booking.service_date.strftime('%d %b %Y') }}</div>
+
+  <div class="form-card">
+    <div class="pay-total">₹{{ (booking.amount or 0)|int }}</div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select name="method" required>
+          <option value="upi">UPI</option>
+          <option value="card">Credit / Debit Card</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-green btn-block">Confirm Payment</button>
+    </form>
+    <p class="demo-note">Demo mode: this only records the payment in FixLocal — no real money moves. Prefer cash? Pay the professional directly and they will mark it as received.</p>
+  </div>
+</div>
+{% endblock %}

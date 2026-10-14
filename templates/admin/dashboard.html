@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, verified_badge %}
+{% block content %}
+<div class="container">
+  <div class="section-title">Admin Panel</div>
+  <div class="section-sub">Review professionals and grant the Verified badge.</div>
+
+  <div class="stat-grid">
+    <div class="stat"><b>{{ stats.workers }}</b><span>Professionals</span></div>
+    <div class="stat"><b>{{ stats.verified }}</b><span>Verified</span></div>
+    <div class="stat"><b>{{ stats.unverified }}</b><span>Awaiting review</span></div>
+    <div class="stat"><b>{{ stats.customers }}</b><span>Customers</span></div>
+    <div class="stat"><b>{{ stats.bookings }}</b><span>Bookings</span></div>
+  </div>
+
+  <div class="tabs">
+    <a href="{{ url_for('admin.dashboard', filter='unverified') }}" class="{{ 'active' if flt == 'unverified' }}">Awaiting review</a>
+    <a href="{{ url_for('admin.dashboard', filter='verified') }}" class="{{ 'active' if flt == 'verified' }}">Verified</a>
+    <a href="{{ url_for('admin.dashboard', filter='all') }}" class="{{ 'active' if flt == 'all' }}">All</a>
+  </div>
+
+  {% if workers %}
+    {% for w in workers %}
+      <div class="booking-row">
+        <div style="display:flex; gap:14px; align-items:center;">
+          {{ avatar(w) }}
+          <div class="booking-info">
+            <h4>{{ w.user.name }} &middot; {{ w.category }} {{ verified_badge(w) }}</h4>
+            <p>{{ w.user.email }}{% if w.user.phone %} &middot; {{ w.user.phone }}{% endif %} &middot; {{ w.user.city or 'City not set' }}</p>
+            <p>{{ w.experience_years }} yrs &middot; ₹{{ w.price_per_visit|int }}/visit{% if w.description %} &middot; {{ w.description[:90] }}{% endif %}</p>
+          </div>
+        </div>
+        <div class="booking-actions">
+          {% if w.is_verified %}
+            <form method="POST" action="{{ url_for('admin.verify_worker', profile_id=w.id, action='unverify') }}"><button class="btn btn-red btn-sm">Remove Verification</button></form>
+          {% else %}
+            <form method="POST" action="{{ url_for('admin.verify_worker', profile_id=w.id, action='verify') }}"><button class="btn btn-green btn-sm">Verify</button></form>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state"><h3>No professionals here</h3></div>
+  {% endif %}
+</div>
+{% endblock %}

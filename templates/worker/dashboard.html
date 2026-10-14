@@ -1,14 +1,22 @@
 {% extends "base.html" %}
+{% from "_macros.html" import avatar, verified_badge, payment_badge %}
 {% block content %}
 <div class="container">
   <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
-    <div>
-      <div class="section-title">My Dashboard</div>
-      <div class="section-sub">{{ profile.category }} &middot; ₹{{ profile.price_per_visit|int }}/visit &middot; ★ {{ profile.avg_rating or '—' }} ({{ profile.review_count }} reviews)</div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      {{ avatar(profile, 'lg') }}
+      <div>
+        <div class="section-title" style="margin-bottom:2px;">My Dashboard {{ verified_badge(profile) }}</div>
+        <div class="section-sub" style="margin-bottom:0;">{{ profile.category }} &middot; ₹{{ profile.price_per_visit|int }}/visit &middot; ★ {{ profile.avg_rating or '—' }} ({{ profile.review_count }} reviews)</div>
+      </div>
     </div>
     <a href="{{ url_for('worker.setup_profile') }}" class="btn btn-outline btn-sm" style="color:var(--ink); border-color:var(--ink);">Edit Profile</a>
   </div>
+  {% if not profile.is_verified %}
+    <div class="flash" style="background:#FBF0DC; color:var(--amber-dark); border:1px solid #EBD3A4; margin-top:20px;">Your profile is awaiting admin verification. Verified professionals are shown first and get a badge.</div>
+  {% endif %}
 
+  <div style="margin-top:28px;">
   {% if bookings %}
     {% for b in bookings %}
       <div class="booking-row">
@@ -16,14 +24,19 @@
           <h4>{{ b.customer.name }} &middot; {{ b.service_date.strftime('%d %b %Y') }}</h4>
           <p>{{ b.address }}</p>
           {% if b.notes %}<p>Note: {{ b.notes }}</p>{% endif %}
+          <p>Amount: ₹{{ (b.amount or profile.price_per_visit)|int }}</p>
         </div>
         <div class="booking-actions">
           <span class="status status-{{ b.status }}">{{ b.status }}</span>
+          {% if b.status in ('accepted', 'completed') or b.payment_status == 'refunded' %}{{ payment_badge(b) }}{% endif %}
           {% if b.status == 'pending' %}
-            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='accept') }}" class="btn btn-green btn-sm">Accept</a>
-            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='reject') }}" class="btn btn-red btn-sm">Reject</a>
+            <form method="POST" action="{{ url_for('worker.update_booking', booking_id=b.id, action='accept') }}"><button class="btn btn-green btn-sm">Accept</button></form>
+            <form method="POST" action="{{ url_for('worker.update_booking', booking_id=b.id, action='reject') }}"><button class="btn btn-red btn-sm">Reject</button></form>
           {% elif b.status == 'accepted' %}
-            <a href="{{ url_for('worker.update_booking', booking_id=b.id, action='complete') }}" class="btn btn-dark btn-sm">Mark Completed</a>
+            <form method="POST" action="{{ url_for('worker.update_booking', booking_id=b.id, action='complete') }}"><button class="btn btn-dark btn-sm">Mark Completed</button></form>
+          {% endif %}
+          {% if b.status in ('accepted', 'completed') and b.payment_status == 'unpaid' %}
+            <form method="POST" action="{{ url_for('worker.update_booking', booking_id=b.id, action='mark-paid') }}"><button class="btn btn-amber btn-sm">Cash Received</button></form>
           {% endif %}
         </div>
       </div>
@@ -34,5 +47,6 @@
       <p>Once customers book you, requests will show up here.</p>
     </div>
   {% endif %}
+  </div>
 </div>
 {% endblock %}

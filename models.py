@@ -12,12 +12,17 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20))
-    role = db.Column(db.String(20), nullable=False)  # 'customer' or 'worker'
+    role = db.Column(db.String(20), nullable=False)  # 'customer', 'worker' or 'admin'
     city = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     worker_profile = db.relationship('WorkerProfile', backref='user', uselist=False, cascade='all, delete-orphan')
     bookings_made = db.relationship('Booking', foreign_keys='Booking.customer_id', backref='customer', lazy='dynamic')
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+
+    @property
+    def unread_count(self):
+        return self.notifications.filter_by(is_read=False).count()
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -36,6 +41,9 @@ class WorkerProfile(db.Model):
     price_per_visit = db.Column(db.Float, nullable=False)
     experience_years = db.Column(db.Integer, default=0)
     is_available = db.Column(db.Boolean, default=True)
+    photo_filename = db.Column(db.String(255))            # file inside static/uploads/profiles/
+    is_verified = db.Column(db.Boolean, default=False)     # set by an admin
+    verified_at = db.Column(db.DateTime)
 
     bookings = db.relationship('Booking', backref='worker_profile', lazy='dynamic')
     reviews = db.relationship('Review', backref='worker_profile', lazy='dynamic')
@@ -61,7 +69,12 @@ class Booking(db.Model):
     service_date = db.Column(db.Date, nullable=False)
     address = db.Column(db.String(255), nullable=False)
     notes = db.Column(db.Text)
-    status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected, completed
+    status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected, completed, cancelled
+    # Mock payment tracking (no real gateway)
+    amount = db.Column(db.Float, default=0)                       # price snapshot at booking time
+    payment_status = db.Column(db.String(20), default='unpaid')   # unpaid, paid, refunded
+    payment_method = db.Column(db.String(20))                     # cash, upi, card
+    paid_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     review = db.relationship('Review', backref='booking', uselist=False, cascade='all, delete-orphan')
@@ -78,7 +91,20 @@ class Review(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    link = db.Column(db.String(255))
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 SERVICE_CATEGORIES = [
     'Plumber', 'Electrician', 'Carpenter', 'Mechanic',
     'Driver', 'Painter', 'Cleaner', 'Technician', 'Cook'
 ]
+
+PAYMENT_METHODS = {'cash': 'Cash', 'upi': 'UPI', 'card': 'Card'}

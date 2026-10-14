@@ -16,6 +16,12 @@ A web platform that connects customers with verified local service professionals
 - **Booking system** — request → pending → accepted/rejected → completed, fully tracked
 - **Reviews & ratings** — customers rate completed bookings only (prevents fake reviews)
 - **Role-based dashboards** — workers manage incoming jobs, customers track their bookings
+- **Profile photos** — workers upload a photo shown on Browse cards
+- **Admin verification** — admins review workers and grant a ✓ Verified badge (verified workers are listed first)
+- **Price-range & verified-only search** — on top of category and city filters
+- **Notifications** — in-app bell + optional e-mail on every booking/payment/verification event
+- **Mock payments** — track unpaid / paid / refunded per booking (UPI, Card, Cash); no real gateway
+- **Cancel booking** — customers can cancel pending/accepted bookings (paid ones are marked refunded)
 
 ## Tech Stack
 - **Backend:** Python, Flask, Flask-Login (session auth), Flask-SQLAlchemy (ORM)
@@ -27,13 +33,17 @@ A web platform that connects customers with verified local service professionals
 ```
 local-service-marketplace/
 ├── app.py                 # App factory, config, blueprint registration
-├── models.py               # User, WorkerProfile, Booking, Review models
+├── models.py               # User, WorkerProfile, Booking, Review, Notification models
+├── notifications.py        # in-app + optional e-mail notifications
+├── uploads.py              # profile photo validation/saving
 ├── requirements.txt
 ├── routes/
 │   ├── auth.py             # signup, login, logout
 │   ├── main.py              # homepage, browse/search
 │   ├── worker.py            # profile setup, dashboard, accept/reject/complete
-│   └── customer.py          # booking, my bookings, reviews
+│   ├── customer.py          # booking, my bookings, reviews, cancel, mock payment
+│   ├── admin.py             # admin dashboard, verify/unverify workers
+│   └── notifications.py     # notifications page
 ├── templates/               # Jinja2 HTML templates
 └── static/css/style.css     # Design system
 ```
@@ -50,7 +60,12 @@ pip install -r requirements.txt
 
 # 3. Run the app
 python app.py
+
+# 4. (Optional, new terminal) create an admin account for the verification panel
+flask --app app create-admin
 ```
+
+By default the app uses PostgreSQL; set `DATABASE_URL` to use something else, e.g. `sqlite:///marketplace.db`. Optional e-mail: set `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`. Optionally set `SECRET_KEY`.
 
 Open **http://127.0.0.1:5000** in your browser. The SQLite database (`marketplace.db`) is created automatically on first run inside an `instance/` folder.
 
@@ -60,13 +75,13 @@ Open **http://127.0.0.1:5000** in your browser. The SQLite database (`marketplac
 3. Go to **Browse Services** → filter by category/city → book the worker
 4. Log back in as the Worker → Accept the booking → Mark it Completed
 5. Log back in as the Customer → Leave a review → see the rating reflect on the Browse page
+6. Extras: upload a worker photo; log in as admin and Verify the worker; pay a booking (UPI) or let the worker tap *Cash Received*; cancel a pending booking; check the 🔔 bell for notifications
 
 ## Possible Future Enhancements
 (good talking points for a viva/interview — mention what you'd add next)
-- Payment gateway integration (Razorpay/Stripe)
-- Real-time notifications (booking status changes)
-- Image uploads for worker portfolios and profile photos
-- Admin panel for verifying workers (ID/certification upload)
+- Real payment gateway integration (Razorpay/Stripe) to replace the mock payment
+- Real-time (WebSocket) notifications and SMS
+- Image uploads for worker portfolios; ID/certification document upload for verification
 - Geolocation-based search instead of text city matching
 - Chat between customer and worker
 

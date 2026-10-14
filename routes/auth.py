@@ -18,6 +18,8 @@ def signup():
         phone = request.form.get('phone', '').strip()
         city = request.form.get('city', '').strip()
         role = request.form.get('role', 'customer')
+        if role not in ('customer', 'worker'):  # never allow self-signup as admin
+            role = 'customer'
 
         if not name or not email or not password:
             flash('Please fill in all required fields.', 'error')
@@ -56,6 +58,8 @@ def login():
             return redirect(url_for('auth.login'))
 
         login_user(user)
+        if user.role == 'admin':
+            return redirect(url_for('admin.dashboard'))
         return redirect(url_for('main.index'))
 
     return render_template('auth/login.html')
